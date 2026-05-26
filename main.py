@@ -296,6 +296,19 @@ if __name__ == "__main__":
             print("CONFIG格式不正确，请检查Secret配置，请严格按照JSON格式：使用双引号包裹字段和值，逗号不能多也不能少")
             traceback.print_exc()
             exit(1)
+            
+        # 随机延迟执行，单位：分钟
+        # 默认 10 分钟以内随机延迟；CONFIG 里设置 "RANDOM_DELAY_MINUTES":"0" 可关闭
+        random_delay_minutes = get_int_value_default(config, 'RANDOM_DELAY_MINUTES', 10)
+        
+        if random_delay_minutes > 0:
+            delay_seconds = random.randint(0, random_delay_minutes * 60)
+            print(f"随机延迟 {delay_seconds // 60}分{delay_seconds % 60}秒后开始执行")
+            time.sleep(delay_seconds)
+                    
+            # 延迟后刷新北京时间，避免步数按延迟前的时间计算
+            time_bj = get_beijing_time()
+
         # 创建推送配置对象
         push_config = push_util.PushConfig(
             push_plus_token=config.get('PUSH_PLUS_TOKEN'),
